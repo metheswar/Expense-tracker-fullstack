@@ -1,14 +1,19 @@
+// NavBar.js
 import React, { useState } from 'react';
 import { Navbar, Nav, Button, Alert } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { useDispatch, useSelector } from 'react-redux';
 import { logoutHandler, premiumHandler } from '../store/authSlice';
 import { clear } from '../store/expenseSlice';
+import { useMediaQuery } from 'react-responsive';
 
 const NavBar = () => {
   const dispatch = useDispatch();
   const login = useSelector((state) => state.authentication.authenticated);
   const premium = useSelector((state) => state.authentication.premium);
+  const isDesktopOrLaptop = useMediaQuery({
+    query: '(min-device-width: 1224px)'
+  });
 
   const [showAlert, setShowAlert] = useState(false);
 
@@ -57,7 +62,7 @@ const NavBar = () => {
           if (resu.success === true) {
             dispatch(premiumHandler(true));
             localStorage.setItem('token', resu.token);
-            setShowAlert(true); 
+            setShowAlert(true);
           }
         },
       };
@@ -71,22 +76,27 @@ const NavBar = () => {
 
   return (
     <>
-      <Navbar bg="dark" variant="dark" className="justify-content-between">
-        <Navbar.Brand style={{ marginLeft: '10px' }}>Expense Tracker Pro</Navbar.Brand>
-        <Nav>
-          {login && (premium ? (
-            <p style={{ color: 'white', margin: '10px' }}>You are a premium customer</p>
-          ) : (
-            <Button style={{ marginRight: '10px' }} variant="primary" onClick={purchasePremium}>
-              Buy Premium
-            </Button>
-          ))}
-          {login && (
-            <Button variant="outline-danger" onClick={onLogout} style={{ marginRight: '10px' }}>
-              Logout
-            </Button>
-          )}
-        </Nav>
+      <Navbar bg="dark" variant="dark" expand="md" className="justify-content-between">
+        <Navbar.Brand style={{ marginLeft: '10px', ...(isDesktopOrLaptop && { marginRight: '840px' }) }}>
+          Expense Tracker Pro
+        </Navbar.Brand>
+        <Navbar.Toggle aria-controls="navbar" />
+        <Navbar.Collapse id="navbar">
+          <Nav className="ml-auto">
+            {login && (premium ? (
+              <p style={{ color: 'white', margin: '10px' }}>You are a premium customer</p>
+            ) : (
+              <Button style={{ marginRight: '10px' }} variant="primary" onClick={purchasePremium}>
+                Buy Premium
+              </Button>
+            ))}
+            {login && (
+              <Button className="my-2 my-md-0" variant="outline-danger" onClick={onLogout}>
+                Logout
+              </Button>
+            )}
+          </Nav>
+        </Navbar.Collapse>
       </Navbar>
       <Alert show={showAlert} variant="success" onClose={() => setShowAlert(false)} dismissible>
         <Alert.Heading>Thank you for becoming a premium user!</Alert.Heading>

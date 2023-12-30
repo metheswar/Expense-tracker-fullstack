@@ -1,19 +1,29 @@
-import React, { useState } from 'react';
-import { Table, Button, Modal, Form } from 'react-bootstrap';
+import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { deleteExpense, updateExpense} from '../store/expenseSlice';
+import { deleteExpense, updateExpense } from '../store/expenseSlice';
+import ExpensesTable from './ExpensesTable';
+import ExpensesModal from './ExpensesModal';
+import ExpensesFilters from './ExpensesFilters';
 
 const Expenses = () => {
-  const expensesArray = useSelector((state) => state.expenses.expenses || []);
+  const expenses = useSelector((state) => state.expenses.expenses || []);
+  const [expensesArray, setExpensesArray] = useState(expenses);
   const dispatch = useDispatch();
- //let totalExpenses = useSelector((state)=>state.expenses.totalExpenses)  
   const [showModal, setShowModal] = useState(false);
   const [selectedExpense, setSelectedExpense] = useState({});
   const [updatedAmount, setUpdatedAmount] = useState('');
   const [updatedDescription, setUpdatedDescription] = useState('');
   const [updatedCategory, setUpdatedCategory] = useState('');
+  const [monthFilter, setMonthFilter] = useState(0);
+  const [categoryFilter, setCategoryFilter] = useState('');
 
+  useEffect(() => {
+    const filteredExpenses = expenses
+      .filter((expense) => (monthFilter ? new Date(expense.createdAt).getMonth() + 1 === monthFilter : true))
+      .filter((expense) => (categoryFilter ? expense.category.toLowerCase() === categoryFilter.toLowerCase() : true));
 
+    setExpensesArray(filteredExpenses);
+  }, [expenses, monthFilter, categoryFilter]);
 
   const deleteHandler = (id) => {
     const token = localStorage.getItem('token');
@@ -78,83 +88,42 @@ const Expenses = () => {
     }
   };
 
-  
+  const getMonthLabel = (monthNumber) => {
+    const months = [
+      'January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December'
+    ];
 
+    if (monthNumber >= 1 && monthNumber <= 12) {
+      return months[monthNumber - 1];
+    }
+
+    return '';
+  };
 
   return (
     <div className="mt-4 mx-auto">
+      <ExpensesFilters setMonthFilter={setMonthFilter} setCategoryFilter={setCategoryFilter} getMonthLabel={getMonthLabel}/>
       {expensesArray.length === 0 ? (
         <div className="text-center">
           <h2>No expenses to display.</h2>
         </div>
       ) : (
         <>
-          <Table striped bordered hover style={{ maxWidth: '1300px', margin: '0 auto' }}>
-            <thead>
-              <tr>
-                <th>Description</th>
-                <th>Amount</th>
-                <th>Category</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {expensesArray.map((expense) => (
-                <tr key={expense.id}>
-                  <td>{expense.description}</td>
-                  <td>{expense.expenseamount}</td>
-                  <td>{expense.category}</td>
-                  <td>
-                    <Button variant="info" size="sm" onClick={() => openUpdateModal(expense)}>
-                      Open
-                    </Button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </Table>
-
-          <Modal show={showModal} onHide={() => setShowModal(false)}>
-            <Modal.Header closeButton>
-              <Modal.Title>{selectedExpense.description}</Modal.Title>
-            </Modal.Header>
-            <Modal.Body>
-              <Form>
-                <Form.Group controlId="formAmount">
-                  <Form.Label>Amount</Form.Label>
-                  <Form.Control
-                    type="number"
-                    value={updatedAmount}
-                    onChange={(e) => setUpdatedAmount(e.target.value)}
-                  />
-                </Form.Group>
-                <Form.Group controlId="formDescription">
-                  <Form.Label>Description</Form.Label>
-                  <Form.Control
-                    type="text"
-                    value={updatedDescription}
-                    onChange={(e) => setUpdatedDescription(e.target.value)}
-                  />
-                </Form.Group>
-                <Form.Group controlId="formCategory">
-                  <Form.Label>Category</Form.Label>
-                  <Form.Control
-                    type="text"
-                    value={updatedCategory}
-                    onChange={(e) => setUpdatedCategory(e.target.value)}
-                  />
-                </Form.Group>
-              </Form>
-            </Modal.Body>
-            <Modal.Footer>
-              <Button variant="danger" onClick={() => deleteHandler(selectedExpense.id)}>
-                Delete
-              </Button>
-              <Button variant="primary" onClick={updateHandler}>
-                Update
-              </Button>
-            </Modal.Footer>
-          </Modal>
+          <ExpensesTable expensesArray={expensesArray} openUpdateModal={openUpdateModal} />
+          <ExpensesModal
+            showModal={showModal}
+            setShowModal={setShowModal}
+            selectedExpense={selectedExpense}
+            updatedAmount={updatedAmount}
+            setUpdatedAmount={setUpdatedAmount}
+            updatedDescription={updatedDescription}
+            setUpdatedDescription={setUpdatedDescription}
+            updatedCategory={updatedCategory}
+            setUpdatedCategory={setUpdatedCategory}
+            deleteHandler={deleteHandler}
+            updateHandler={updateHandler}
+          />
         </>
       )}
     </div>

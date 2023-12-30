@@ -53,7 +53,7 @@ const InputForm = () => {
 
   return (
     <>
-      <Card className="mt-4 mx-auto" style={{ maxWidth: '400px', width: '100%' }}>
+      <Card className="mt-4 mx-auto" style={{ maxWidth: '340px', width: '100%', borderRadius: '15px' }}>
         <Card.Body>
           <Card.Title className="text-center">Expense Tracker</Card.Title>
           <Form onSubmit={handleFormSubmit}>
