@@ -9,6 +9,7 @@ const orders = require('./models/orders')
 const { signupController, loginController } = require('./controllers/userController');
 const { postExpenses, getExpenses, deleteExpense, updateExpense } = require('./controllers/expenseController');
 const { purchasePremium, updatePremiumStatus } = require('./controllers/premiumController');
+const { getLeaderboard } = require('./controllers/leaderboardController');
 dotenv.config()
 User.hasMany(expense);
 expense.belongsTo(User);
@@ -28,7 +29,7 @@ app.post('/signup', signupController);
 app.post('/login', loginController);
 app.post('/purchasePremium',purchasePremium)
 app.post('/updatePremiumStatus',updatePremiumStatus)
-
+app.get('/leaderBoard',getLeaderboard)
 app.listen(3001, () => {
   console.log('Server is running on http://localhost:3001');
 });

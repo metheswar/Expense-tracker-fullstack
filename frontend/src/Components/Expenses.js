@@ -1,14 +1,19 @@
-import React, { useEffect, useState, useCallback, useMemo } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { deleteExpense, updateExpense } from '../store/expenseSlice';
 import ExpensesTable from './ExpensesTable';
 import ExpensesModal from './ExpensesModal';
 import ExpensesFilters from './ExpensesFilters';
 
+const months = [
+  'January', 'February', 'March', 'April', 'May', 'June',
+  'July', 'August', 'September', 'October', 'November', 'December'
+];
+
 const Expenses = () => {
-  const expenses = useSelector((state) => state.expenses.expenses || []);
-  const [expensesArray, setExpensesArray] = useState(expenses);
   const dispatch = useDispatch();
+  const expenses = useSelector(({ expenses }) => expenses.expenses || []);
+  const [expensesArray, setExpensesArray] = useState(expenses);
   const [showModal, setShowModal] = useState(false);
   const [selectedExpense, setSelectedExpense] = useState({});
   const [updatedAmount, setUpdatedAmount] = useState('');
@@ -17,28 +22,40 @@ const Expenses = () => {
   const [monthFilter, setMonthFilter] = useState(0);
   const [categoryFilter, setCategoryFilter] = useState('');
 
-  const deleteHandler = useCallback((id) => {
+  const filterExpenses = useCallback(
+    (expense) => (
+      (!monthFilter || new Date(expense.createdAt).getMonth() + 1 === monthFilter) &&
+      (!categoryFilter || expense.category.toLowerCase() === categoryFilter.toLowerCase())
+    ),
+    [monthFilter, categoryFilter]
+  );
+
+  useEffect(() => {
+    setExpensesArray(expenses.filter(filterExpenses));
+  }, [expenses, monthFilter, categoryFilter, filterExpenses]);
+
+  const deleteHandler = useCallback(async (id) => {
     const token = localStorage.getItem('token');
 
-    fetch(`http://localhost:3001/deleteExpense/${id}`, {
-      method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
-      },
-    })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error(`Error deleting expense: ${response.statusText}`);
-        }
-
-        console.log('Expense deleted successfully');
-        dispatch(deleteExpense({ id }));
-        setShowModal(false);
-      })
-      .catch((error) => {
-        console.error('Error deleting expense:', error.message);
+    try {
+      const response = await fetch(`http://localhost:3001/deleteExpense/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
       });
+
+      if (!response.ok) {
+        throw new Error(`Error deleting expense: ${response.statusText}`);
+      }
+
+      console.log('Expense deleted successfully');
+      dispatch(deleteExpense({ id }));
+      setShowModal(false);
+    } catch (error) {
+      console.error('Error deleting expense:', error.message);
+    }
   }, [dispatch]);
 
   const openUpdateModal = useCallback((expense) => {
@@ -81,27 +98,12 @@ const Expenses = () => {
   }, [dispatch, selectedExpense, updatedAmount, updatedDescription, updatedCategory]);
 
   const getMonthLabel = useCallback((monthNumber) => {
-    const months = [
-      'January', 'February', 'March', 'April', 'May', 'June',
-      'July', 'August', 'September', 'October', 'November', 'December'
-    ];
-
     if (monthNumber >= 1 && monthNumber <= 12) {
       return months[monthNumber - 1];
     }
 
     return '';
   }, []);
-
-  const filteredExpenses = useMemo(() => {
-    return expenses
-      .filter((expense) => (monthFilter ? new Date(expense.createdAt).getMonth() + 1 === monthFilter : true))
-      .filter((expense) => (categoryFilter ? expense.category.toLowerCase() === categoryFilter.toLowerCase() : true));
-  }, [expenses, monthFilter, categoryFilter]);
-
-  useEffect(() => {
-    setExpensesArray(filteredExpenses);
-  }, [filteredExpenses]);
 
   return (
     <div className="mt-4 mx-auto">

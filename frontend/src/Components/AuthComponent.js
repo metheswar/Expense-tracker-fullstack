@@ -38,10 +38,27 @@ const AuthComponent = () => {
     }
   };
 
+  const validateEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  const validatePassword = (password) => {
+
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    return passwordRegex.test(password);
+  };
+
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
       setLoading(true);
+
+      if (!validateEmail(username)) {
+        setError('Invalid email format');
+        return;
+      }
+
       const endpoint = 'http://localhost:3001/login';
       const response = await fetch(endpoint, {
         method: 'POST',
@@ -83,6 +100,12 @@ const AuthComponent = () => {
     e.preventDefault();
     try {
       setLoading(true);
+
+      if (!validateEmail(username) || !validatePassword(password)) {
+        setError('Invalid email or password format');
+        return;
+      }
+
       const endpoint = 'http://localhost:3001/signup';
       const response = await fetch(endpoint, {
         method: 'POST',
@@ -125,7 +148,7 @@ const AuthComponent = () => {
           {error && <Alert variant="danger">{error}</Alert>}
           {signupSuccess && <Alert variant="success">Signup successful! You can now login.</Alert>}
           <Form onSubmit={isLogin ? handleLogin : handleSignup}>
-           {isLogin ? null :  <Form.Group className="mb-3" controlId="formName">
+            {isLogin ? null :  <Form.Group className="mb-3" controlId="formName">
               <Form.Label>Name:</Form.Label>
               <Form.Control
                 type="text"
@@ -164,6 +187,9 @@ const AuthComponent = () => {
                   {showPassword ? <FaEyeSlash /> : <FaEye />}
                 </Button>
               </div>
+              <Form.Text className="text-muted">
+                Password must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, one number, and one special character.
+              </Form.Text>
             </Form.Group>
             <Button
               variant="primary"

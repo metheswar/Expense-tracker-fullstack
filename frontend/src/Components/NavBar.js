@@ -1,27 +1,25 @@
-// NavBar.js
-import React, { useState } from 'react';
-import { Navbar, Nav, Button, Alert } from 'react-bootstrap';
+import React, { useState} from 'react';
+import { Button, Alert, Navbar, Nav, Row, Col} from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { useDispatch, useSelector } from 'react-redux';
 import { logoutHandler, premiumHandler } from '../store/authSlice';
 import { clear } from '../store/expenseSlice';
-import { useMediaQuery } from 'react-responsive';
+import { Link, useNavigate } from 'react-router-dom';
 
 const NavBar = () => {
   const dispatch = useDispatch();
   const login = useSelector((state) => state.authentication.authenticated);
   const premium = useSelector((state) => state.authentication.premium);
-  const isDesktopOrLaptop = useMediaQuery({
-    query: '(min-device-width: 1224px)',
-  });
 
   const [showAlert, setShowAlert] = useState(false);
 
+  const navigate = useNavigate();
   const onLogout = () => {
     dispatch(clear());
     localStorage.removeItem('token');
     localStorage.removeItem('email');
     dispatch(logoutHandler());
+    navigate('/')
   };
 
   const purchasePremium = async () => {
@@ -75,35 +73,45 @@ const NavBar = () => {
   };
 
   return (
-    <>
-      <Navbar bg="dark" variant="dark" expand="md" className="justify-content-between">
-        <Navbar.Brand style={{ marginLeft: '10px', ...(isDesktopOrLaptop && { marginRight: '840px' }) }}>
+<>
+      <Navbar bg="dark" variant="dark" expand="md" style={{padding:'10px'}}>
+        <Navbar.Brand as={Link} to="/">
           Expense Tracker Pro
         </Navbar.Brand>
         <Navbar.Toggle aria-controls="navbar" />
-        <Navbar.Collapse id="navbar">
-          <Nav className="ml-auto">
-            {login && (
-              <React.Fragment>
-                {premium ? (
-                  <p style={{ color: 'white', margin: '10px',marginLeft:'40px' , marginRight: '20px' }}>premium customer</p>
-                ) : (
-                  <Button variant="primary" onClick={purchasePremium} style={{ marginRight: '25px',marginLeft:'50px' }}>
-                    Buy Premium
-                  </Button>
-                )}
-                <Button className="my-2 my-md-0" variant="outline-danger" onClick={onLogout}>
-                  Logout
+        <Navbar.Collapse className="justify-content-end">
+          {login && (
+            <Nav>
+              {premium && <Nav.Link as={Link} to="/leaderboard">
+                LeaderBoard
+              </Nav.Link>}
+              {premium ? <Nav.Link as={Link} style={{color:'white'}} to="/">
+                Premium Customer
+              </Nav.Link>  : (
+                <Button variant="light" onClick={purchasePremium} style={{marginRight:'10px'}} className="mr-3">
+                  Buy Premium
                 </Button>
-              </React.Fragment>
-            )}
-          </Nav>
+              )}
+              <Button variant="outline-danger" onClick={onLogout}>
+                Logout
+              </Button>
+            </Nav>
+          )}
         </Navbar.Collapse>
       </Navbar>
-      <Alert show={showAlert} variant="success" onClose={() => setShowAlert(false)} dismissible>
-        <Alert.Heading>Thank you for becoming a premium user!</Alert.Heading>
-        <p>You can now enjoy the benefits of premium features.</p>
-      </Alert>
+      <Row>
+        <Col>
+          <Alert
+            show={showAlert}
+            variant="success"
+            onClose={() => setShowAlert(false)}
+            dismissible
+          >
+            <Alert.Heading>Thank you for becoming a premium user!</Alert.Heading>
+            <p>You can now enjoy the benefits of premium features.</p>
+          </Alert>
+        </Col>
+      </Row>
     </>
   );
 };

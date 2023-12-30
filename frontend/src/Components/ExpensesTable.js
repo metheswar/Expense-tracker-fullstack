@@ -7,7 +7,7 @@ const ExpensesTable = React.memo(({ expensesArray, openUpdateModal }) => {
   const [currentPage, setCurrentPage] = useState(1);
 
   const getCurrentPageExpenses = useMemo(() => {
-    const sortedExpenses = expensesArray.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+    const sortedExpenses = [...expensesArray].sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
     const startIndex = (currentPage - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
     return sortedExpenses.slice(startIndex, endIndex);
