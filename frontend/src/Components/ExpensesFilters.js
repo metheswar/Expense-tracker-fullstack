@@ -1,8 +1,7 @@
-// ExpensesFilters.js
 import React from 'react';
 import { Form, Col, Row, Container } from 'react-bootstrap';
 
-const ExpensesFilters = ({ setMonthFilter, setCategoryFilter, getMonthLabel }) => (
+const ExpensesFilters = React.memo(({ setMonthFilter, setCategoryFilter, getMonthLabel }) => (
   <Container className="mt-3">
     <Row className="justify-content-center">
       <Col xs={12} sm={6} md={4} lg={3} className="mb-2">
@@ -49,6 +48,6 @@ const ExpensesFilters = ({ setMonthFilter, setCategoryFilter, getMonthLabel }) =
       </Col>
     </Row>
   </Container>
-);
+));
 
 export default ExpensesFilters;

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Modal, Form, Button } from 'react-bootstrap';
 
-const ExpensesModal = ({ showModal, setShowModal, selectedExpense, updatedAmount, setUpdatedAmount, updatedDescription, setUpdatedDescription, updatedCategory, setUpdatedCategory, deleteHandler, updateHandler }) => (
+const ExpensesModal = React.memo(({ showModal, setShowModal, selectedExpense, updatedAmount, setUpdatedAmount, updatedDescription, setUpdatedDescription, updatedCategory, setUpdatedCategory, deleteHandler, updateHandler }) => (
   <Modal show={showModal} onHide={() => setShowModal(false)}>
     <Modal.Header closeButton>
       <Modal.Title>{selectedExpense.description}</Modal.Title>
@@ -50,6 +50,6 @@ const ExpensesModal = ({ showModal, setShowModal, selectedExpense, updatedAmount
       </Button>
     </Modal.Footer>
   </Modal>
-);
+));
 
 export default ExpensesModal;

@@ -12,7 +12,7 @@ const NavBar = () => {
   const login = useSelector((state) => state.authentication.authenticated);
   const premium = useSelector((state) => state.authentication.premium);
   const isDesktopOrLaptop = useMediaQuery({
-    query: '(min-device-width: 1224px)'
+    query: '(min-device-width: 1224px)',
   });
 
   const [showAlert, setShowAlert] = useState(false);
@@ -83,26 +83,26 @@ const NavBar = () => {
         <Navbar.Toggle aria-controls="navbar" />
         <Navbar.Collapse id="navbar">
           <Nav className="ml-auto">
-            {login && (premium ? (
-              <p style={{ color: 'white', margin: '10px' }}>You are a premium customer</p>
-            ) : (
-              <Button style={{ marginRight: '10px' }} variant="primary" onClick={purchasePremium}>
-                Buy Premium
-              </Button>
-            ))}
             {login && (
-              <Button className="my-2 my-md-0" variant="outline-danger" onClick={onLogout}>
-                Logout
-              </Button>
+              <React.Fragment>
+                {premium ? (
+                  <p style={{ color: 'white', margin: '10px',marginLeft:'40px' , marginRight: '20px' }}>premium customer</p>
+                ) : (
+                  <Button variant="primary" onClick={purchasePremium} style={{ marginRight: '25px',marginLeft:'50px' }}>
+                    Buy Premium
+                  </Button>
+                )}
+                <Button className="my-2 my-md-0" variant="outline-danger" onClick={onLogout}>
+                  Logout
+                </Button>
+              </React.Fragment>
             )}
           </Nav>
         </Navbar.Collapse>
       </Navbar>
       <Alert show={showAlert} variant="success" onClose={() => setShowAlert(false)} dismissible>
         <Alert.Heading>Thank you for becoming a premium user!</Alert.Heading>
-        <p>
-          You can now enjoy the benefits of premium features.
-        </p>
+        <p>You can now enjoy the benefits of premium features.</p>
       </Alert>
     </>
   );

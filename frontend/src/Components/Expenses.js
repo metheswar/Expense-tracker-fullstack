@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { deleteExpense, updateExpense } from '../store/expenseSlice';
 import ExpensesTable from './ExpensesTable';
@@ -17,15 +17,7 @@ const Expenses = () => {
   const [monthFilter, setMonthFilter] = useState(0);
   const [categoryFilter, setCategoryFilter] = useState('');
 
-  useEffect(() => {
-    const filteredExpenses = expenses
-      .filter((expense) => (monthFilter ? new Date(expense.createdAt).getMonth() + 1 === monthFilter : true))
-      .filter((expense) => (categoryFilter ? expense.category.toLowerCase() === categoryFilter.toLowerCase() : true));
-
-    setExpensesArray(filteredExpenses);
-  }, [expenses, monthFilter, categoryFilter]);
-
-  const deleteHandler = (id) => {
+  const deleteHandler = useCallback((id) => {
     const token = localStorage.getItem('token');
 
     fetch(`http://localhost:3001/deleteExpense/${id}`, {
@@ -47,17 +39,17 @@ const Expenses = () => {
       .catch((error) => {
         console.error('Error deleting expense:', error.message);
       });
-  };
+  }, [dispatch]);
 
-  const openUpdateModal = (expense) => {
+  const openUpdateModal = useCallback((expense) => {
     setSelectedExpense(expense);
     setUpdatedAmount(expense.expenseamount);
     setUpdatedDescription(expense.description);
     setUpdatedCategory(expense.category);
     setShowModal(true);
-  };
+  }, []);
 
-  const updateHandler = async () => {
+  const updateHandler = useCallback(async () => {
     try {
       const token = localStorage.getItem('token');
       const response = await fetch(`http://localhost:3001/updateExpense/${selectedExpense.id}`, {
@@ -86,9 +78,9 @@ const Expenses = () => {
     } catch (error) {
       console.error('Error updating expense:', error.message);
     }
-  };
+  }, [dispatch, selectedExpense, updatedAmount, updatedDescription, updatedCategory]);
 
-  const getMonthLabel = (monthNumber) => {
+  const getMonthLabel = useCallback((monthNumber) => {
     const months = [
       'January', 'February', 'March', 'April', 'May', 'June',
       'July', 'August', 'September', 'October', 'November', 'December'
@@ -99,7 +91,17 @@ const Expenses = () => {
     }
 
     return '';
-  };
+  }, []);
+
+  const filteredExpenses = useMemo(() => {
+    return expenses
+      .filter((expense) => (monthFilter ? new Date(expense.createdAt).getMonth() + 1 === monthFilter : true))
+      .filter((expense) => (categoryFilter ? expense.category.toLowerCase() === categoryFilter.toLowerCase() : true));
+  }, [expenses, monthFilter, categoryFilter]);
+
+  useEffect(() => {
+    setExpensesArray(filteredExpenses);
+  }, [filteredExpenses]);
 
   return (
     <div className="mt-4 mx-auto">
@@ -130,4 +132,4 @@ const Expenses = () => {
   );
 };
 
-export default Expenses;
+export default React.memo(Expenses);

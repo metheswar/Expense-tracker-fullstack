@@ -1,17 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Table, Pagination, Container, Row, Col } from 'react-bootstrap';
 
-const ExpensesTable = ({ expensesArray, openUpdateModal }) => {
+const ExpensesTable = React.memo(({ expensesArray, openUpdateModal }) => {
   const itemsPerPage = 4;
   const totalPages = Math.ceil(expensesArray.length / itemsPerPage);
   const [currentPage, setCurrentPage] = useState(1);
 
-  const getCurrentPageExpenses = () => {
+  const getCurrentPageExpenses = useMemo(() => {
     const sortedExpenses = expensesArray.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
     const startIndex = (currentPage - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
     return sortedExpenses.slice(startIndex, endIndex);
-  };
+  }, [currentPage, expensesArray, itemsPerPage]);
 
   return (
     <Container fluid className="mt-4">
@@ -28,7 +28,7 @@ const ExpensesTable = ({ expensesArray, openUpdateModal }) => {
                 </tr>
               </thead>
               <tbody>
-                {getCurrentPageExpenses().map((expense) => (
+                {getCurrentPageExpenses.map((expense) => (
                   <tr
                     key={expense.id}
                     onClick={() => openUpdateModal(expense)}
@@ -62,6 +62,6 @@ const ExpensesTable = ({ expensesArray, openUpdateModal }) => {
       </Row>
     </Container>
   );
-};
+});
 
 export default ExpensesTable;
