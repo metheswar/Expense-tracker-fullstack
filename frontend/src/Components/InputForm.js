@@ -1,18 +1,28 @@
 import React, { useState } from 'react';
-import { Card, Form, Button } from 'react-bootstrap';
-import { useDispatch } from 'react-redux';
+import { Card, Form, Button, Alert } from 'react-bootstrap';
+import { useDispatch, useSelector } from 'react-redux';
 import { addExpense } from '../store/expenseSlice';
 import Expenses from './Expenses';
 
 const InputForm = () => {
   const dispatch = useDispatch();
+  const total = useSelector((state) => state.expenses.totalExpenses);
+  const premium = useSelector((state) => state.authentication.premium);
 
   const [amount, setAmount] = useState('');
   const [description, setDescription] = useState('');
   const [category, setCategory] = useState('');
+  const [showPremiumAlert, setShowPremiumAlert] = useState(false);
 
   const handleFormSubmit = async (e) => {
     e.preventDefault();
+    if (!premium && total + parseFloat(amount) > 10000) {
+      setShowPremiumAlert(true);
+      setTimeout(() => {
+        setShowPremiumAlert(false)
+      }, 5000);
+      return;
+    }
 
     if (!amount || !description || !category) {
       return;
@@ -49,6 +59,7 @@ const InputForm = () => {
     setAmount('');
     setDescription('');
     setCategory('');
+    setShowPremiumAlert(false);
   };
 
   return (
@@ -56,6 +67,11 @@ const InputForm = () => {
       <Card className="mt-4 mx-auto" style={{ maxWidth: '340px', width: '100%', borderRadius: '15px' }}>
         <Card.Body>
           <Card.Title className="text-center">Expense Tracker</Card.Title>
+          {showPremiumAlert && (
+            <Alert variant="danger">
+              Please upgrade to premium to continue.
+            </Alert>
+          )}
           <Form onSubmit={handleFormSubmit}>
             <Form.Group className="mb-3" controlId="amount">
               <Form.Label>Amount</Form.Label>
@@ -81,16 +97,12 @@ const InputForm = () => {
 
             <Form.Group className="mb-3" controlId="category">
               <Form.Label>Category</Form.Label>
-              <Form.Select
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-                required
-              >
+              <Form.Select value={category} onChange={(e) => setCategory(e.target.value)} required>
                 <option value="">Select category</option>
                 <option value="food">Food</option>
                 <option value="fuel">Fuel</option>
                 <option value="transport">Transport</option>
-                <option value="miscellaneous">Miscellaneous</option>
+                <option value="Others">Others</option>
               </Form.Select>
             </Form.Group>
 

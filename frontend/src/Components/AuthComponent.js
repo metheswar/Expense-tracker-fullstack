@@ -71,7 +71,7 @@ const AuthComponent = () => {
         }),
       });
 
-      if (response.ok) {
+    
         const responseData = await response.json();
 
         if (responseData.message === true) {
@@ -82,15 +82,12 @@ const AuthComponent = () => {
           dispatch(premiumHandler(responseData.user.premium))
           fetchExpenses();
         } else {
-          setError('Invalid email or password');
+          setError(responseData.error);
         }
-      } else {
-        console.error('Login failed');
-        setError('Failed to log in. Please try again.');
-      }
+     
     } catch (error) {
       console.error('Error during login:', error);
-      setError('Internal Server Error. Please try again later.');
+      setError(error);
     } finally {
       setLoading(false);
     }

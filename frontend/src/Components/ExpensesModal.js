@@ -36,7 +36,7 @@ const ExpensesModal = React.memo(({ showModal, setShowModal, selectedExpense, up
             <option value="food">Food</option>
             <option value="fuel">Fuel</option>
             <option value="transport">Transport</option>
-            <option value="miscellaneous">Miscellaneous</option>
+            <option value="Others">Others</option>
           </Form.Control>
         </Form.Group>
       </Form>

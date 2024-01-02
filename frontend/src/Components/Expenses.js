@@ -16,7 +16,7 @@ const Expenses = () => {
   const [expensesArray, setExpensesArray] = useState(expenses);
   const [showModal, setShowModal] = useState(false);
   const [selectedExpense, setSelectedExpense] = useState({});
-  const [updatedAmount, setUpdatedAmount] = useState('');
+  const [updatedAmount, setUpdatedAmount] = useState(0);
   const [updatedDescription, setUpdatedDescription] = useState('');
   const [updatedCategory, setUpdatedCategory] = useState('');
   const [monthFilter, setMonthFilter] = useState(0);
@@ -76,7 +76,7 @@ const Expenses = () => {
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
-          amount: updatedAmount,
+          amount: parseFloat(updatedAmount),
           description: updatedDescription,
           category: updatedCategory,
         }),

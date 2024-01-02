@@ -6,6 +6,7 @@ import InputForm from './Components/InputForm';
 import NavBar from './Components/NavBar';
 import { useEffect } from 'react';
 import Leaderboard from './Components/Leaderboard';
+import ExpensePieChart from './Components/ExpensePieChart';
 
 
 function App() {
@@ -36,7 +37,8 @@ function App() {
             <>
               <Route path="/" element={<InputForm />} />
               {premium && <Route path='/leaderboard' element={<Leaderboard />} />}
-              
+              <Route path='/analyze' element={<ExpensePieChart />} />
+              <Route path="/*" element={<InputForm />} />
             </>
           )}
           <Route path="/*" element={<AuthPage />} />

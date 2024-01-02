@@ -1,13 +1,26 @@
 import React, { useState, useMemo } from 'react';
 import { Table, Pagination, Container, Row, Col } from 'react-bootstrap';
 
+
 const ExpensesTable = React.memo(({ expensesArray, openUpdateModal }) => {
   const itemsPerPage = 4;
   const totalPages = Math.ceil(expensesArray.length / itemsPerPage);
   const [currentPage, setCurrentPage] = useState(1);
 
   const getCurrentPageExpenses = useMemo(() => {
-    const sortedExpenses = [...expensesArray].sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+    const sortedExpenses = [...expensesArray].sort((a, b) => {
+      const dateA = new Date(a.createdAt);
+      const dateB = new Date(b.createdAt);
+  
+      if (dateA > dateB) return -1;
+      if (dateA < dateB) return 1;
+  
+      
+      const timeA = dateA.getTime();
+      const timeB = dateB.getTime();
+      return timeA > timeB ? -1 : timeA < timeB ? 1 : 0;
+    });
+  
     const startIndex = (currentPage - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
     return sortedExpenses.slice(startIndex, endIndex);
@@ -36,7 +49,7 @@ const ExpensesTable = React.memo(({ expensesArray, openUpdateModal }) => {
                   >
                     <td>{new Date(expense.createdAt).toLocaleDateString()}</td>
                     <td>{expense.description}</td>
-                    <td>{expense.expenseamount.toFixed(2)}</td>
+                    <td>{parseFloat(expense.expenseamount).toFixed(2)}</td>
                     <td>{expense.category}</td>
                   </tr>
                 ))}

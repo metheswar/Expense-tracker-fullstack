@@ -82,14 +82,16 @@ const NavBar = () => {
         <Navbar.Collapse className="justify-content-end">
           {login && (
             <Nav>
+              <Nav.Link as={Link} to="/">Home</Nav.Link>
               {premium && <Nav.Link as={Link} to="/leaderboard">
                 LeaderBoard
               </Nav.Link>}
-              {premium ? <Nav.Link as={Link} style={{color:'white'}} to="/">
-                Premium Customer
+              {premium &&<Nav.Link as={Link} to="/analyze">Expense Analyze</Nav.Link> }
+              {premium ? <Nav.Link  style={{color:'white',marginRight:'10px'}} >
+              👑Premium Customer
               </Nav.Link>  : (
                 <Button variant="light" onClick={purchasePremium} style={{marginRight:'10px'}} className="mr-3">
-                  Buy Premium
+                  👑Buy Premium
                 </Button>
               )}
               <Button variant="outline-danger" onClick={onLogout}>

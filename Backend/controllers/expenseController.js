@@ -2,14 +2,12 @@
 const Expense = require('../models/Expense');
 const User = require('../models/user');
 const { verifyToken } = require('../helpers/jwtHelper');
+const sequelize = require('../models/sequelize');
 
 const postExpenses = async (req, res) => {
-  const { amount, description, category } = req.body;
-
   try {
     const token = req.headers.authorization.split(' ')[1];
     const decodedToken = verifyToken(token);
-
 
     const user = await User.findByPk(decodedToken.userId);
 
@@ -17,11 +15,21 @@ const postExpenses = async (req, res) => {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    const newExpense = await user.createExpense({
-      expenseamount: amount,
-      category: category,
-      description: description,
-    });
+    const transaction = await sequelize.transaction();
+    let newExpense;
+
+    try {
+      newExpense = await user.createExpense({
+        expenseamount: req.body.amount,
+        category: req.body.category,
+        description: req.body.description,
+      }, { transaction });
+
+      await transaction.commit();
+    } catch (error) {
+      await transaction.rollback();
+      throw error;
+    }
 
     return res.status(200).json(newExpense);
   } catch (error) {
@@ -55,19 +63,26 @@ const getExpenses = async (req, res) => {
 };
 
 const deleteExpense = async (req, res) => {
-  const { expenseId } = req.params;
-
   try {
     const token = req.headers.authorization.split(' ')[1];
     const decodedToken = verifyToken(token);
 
-    const expense = await Expense.findByPk(expenseId);
+    const expense = await Expense.findByPk(req.params.expenseId);
 
     if (!expense || decodedToken.userId !== expense.UserId) {
       return res.status(401).json({ error: 'Unauthorized' });
     }
 
-    await expense.destroy();
+    const transaction = await sequelize.transaction();
+
+    try {
+      await expense.destroy({ transaction });
+
+      await transaction.commit();
+    } catch (error) {
+      await transaction.rollback();
+      throw error;
+    }
 
     return res.status(200).json(expense);
   } catch (error) {
@@ -77,24 +92,30 @@ const deleteExpense = async (req, res) => {
 };
 
 const updateExpense = async (req, res) => {
-  const { expenseId } = req.params;
-  const { amount, description, category } = req.body;
-
   try {
     const token = req.headers.authorization.split(' ')[1];
     const decodedToken = verifyToken(token);
 
-    const expense = await Expense.findByPk(expenseId);
+    const expense = await Expense.findByPk(req.params.expenseId);
 
     if (!expense || decodedToken.userId !== expense.UserId) {
       return res.status(401).json({ error: 'Unauthorized' });
     }
 
-    expense.expenseamount = amount;
-    expense.description = description;
-    expense.category = category;
+    const transaction = await sequelize.transaction();
 
-    await expense.save();
+    try {
+      expense.expenseamount = req.body.amount;
+      expense.description = req.body.description;
+      expense.category = req.body.category;
+
+      await expense.save({ transaction });
+
+      await transaction.commit();
+    } catch (error) {
+      await transaction.rollback();
+      throw error;
+    }
 
     return res.status(200).json(expense);
   } catch (error) {
