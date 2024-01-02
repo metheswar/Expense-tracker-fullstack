@@ -7,6 +7,7 @@ import NavBar from './Components/NavBar';
 import { useEffect } from 'react';
 import Leaderboard from './Components/Leaderboard';
 import ExpensePieChart from './Components/ExpensePieChart';
+import ForgotPassword from './Components/ForgotPassword';
 
 
 function App() {
@@ -41,7 +42,9 @@ function App() {
               <Route path="/*" element={<InputForm />} />
             </>
           )}
+          <Route path="/forgotpassword" element={<ForgotPassword />}/>
           <Route path="/*" element={<AuthPage />} />
+          
         </Routes>
       </Router>
     </>

@@ -5,7 +5,7 @@ import { Container, Card, Form, Button, Alert } from 'react-bootstrap';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { addExpense } from '../store/expenseSlice';
-
+import { Link } from 'react-router-dom';
 const AuthComponent = () => {
   const dispatch = useDispatch();
   const [name, setName] = useState('');
@@ -200,6 +200,9 @@ const AuthComponent = () => {
           </Form>
           <p className="mt-3 text-center" onClick={() => setIsLogin(!isLogin)} style={{ cursor: 'pointer' }}>
             {isLogin ? "Don't have an account? Sign Up" : 'Already have an account? Login'}
+          </p>
+          <p className="mt-2 text-center">
+           <Link to="/forgotpassword">Forgot Password?</Link>
           </p>
         </Card.Body>
       </Card>

@@ -5,11 +5,13 @@ import { useDispatch, useSelector } from 'react-redux';
 import { logoutHandler, premiumHandler } from '../store/authSlice';
 import { clear } from '../store/expenseSlice';
 import { Link, useNavigate } from 'react-router-dom';
+import { saveAs } from 'file-saver';
 
 const NavBar = () => {
   const dispatch = useDispatch();
   const login = useSelector((state) => state.authentication.authenticated);
   const premium = useSelector((state) => state.authentication.premium);
+  const expenses = useSelector((state)=>state.expenses.expenses)
 
   const [showAlert, setShowAlert] = useState(false);
 
@@ -21,6 +23,23 @@ const NavBar = () => {
     dispatch(logoutHandler());
     navigate('/')
   };
+
+  const downloadHandler = () =>{
+
+    const csv =
+    "Category,Description,Amount\n" +
+    expenses
+      .map(
+        ({createdAt, category, description, expenseamount }) =>
+          `${createdAt},${category},${description},${expenseamount}`
+      )
+      .join("\n");
+
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+
+
+  saveAs(blob, "expenses.csv");
+  }
 
   const purchasePremium = async () => {
     try {
@@ -94,6 +113,7 @@ const NavBar = () => {
                   👑Buy Premium
                 </Button>
               )}
+              <Button variant="primary" onClick={downloadHandler} style={{marginRight:'10px'}}>Download CSV</Button>
               <Button variant="outline-danger" onClick={onLogout}>
                 Logout
               </Button>
