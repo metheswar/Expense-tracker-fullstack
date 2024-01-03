@@ -8,7 +8,7 @@ const expense = require('./models/Expense');
 const orders = require('./models/orders');
 const forgotpassword = require('./models/forgotpassword');
 const { signupController, loginController } = require('./controllers/userController');
-const { postExpenses, getExpenses, deleteExpense, updateExpense } = require('./controllers/expenseController');
+const { postExpenses, getExpenses, deleteExpense, updateExpense, downloadExpenses } = require('./controllers/expenseController');
 const { purchasePremium, updatePremiumStatus } = require('./controllers/premiumController');
 const { getLeaderboard } = require('./controllers/leaderboardController');
 const { resetPassword, newPassword, passwordUpdate } = require('./controllers/forgotController');
@@ -39,6 +39,7 @@ app.get('/leaderBoard', getLeaderboard);
 app.post('/password/reset', resetPassword);
 app.get('/password/new/:id', newPassword);
 app.post('/password/update/:id', passwordUpdate);
+app.get('/downloadExpenses',downloadExpenses)
 
 app.listen(3001, () => {
   console.log('Server is running on http://localhost:3001');

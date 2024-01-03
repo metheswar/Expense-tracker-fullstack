@@ -24,23 +24,41 @@ const NavBar = () => {
     navigate('/')
   };
 
-  const downloadHandler = () =>{
-
-    const csv =
-    "Category,Description,Amount\n" +
-    expenses
-      .map(
-        ({createdAt, category, description, expenseamount }) =>
-          `${createdAt},${category},${description},${expenseamount}`
-      )
-      .join("\n");
-
-  const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+  const downloadHandler = async () =>{
+    try {
 
 
-  saveAs(blob, "expenses.csv");
+      const token = localStorage.getItem('token');
+      const response = await fetch('http://localhost:3001/downloadExpenses', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        const { fileUrl } = result;
+
+       
+        const link = document.createElement('a');
+        link.href = fileUrl;
+        link.download = 'expenses.csv';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      } else {
+      
+        const result = await response.json();
+        console.error('Download Expenses Error:', result.error);
+
+      }
+    } catch (err) {
+      console.error('Download Expenses Error:', err);
+    
+    }
   }
-
   const purchasePremium = async () => {
     try {
       const token = localStorage.getItem('token');
@@ -113,7 +131,7 @@ const NavBar = () => {
                   👑Buy Premium
                 </Button>
               )}
-              <Button variant="primary" onClick={downloadHandler} style={{marginRight:'10px'}}>Download CSV</Button>
+              {premium && <Button variant="primary" onClick={downloadHandler} style={{marginRight:'10px'}}>Download CSV</Button>}
               <Button variant="outline-danger" onClick={onLogout}>
                 Logout
               </Button>

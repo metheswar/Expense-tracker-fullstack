@@ -20,7 +20,7 @@ const resetPassword = async (req, res) => {
 
             const msg = {
                 to: email,
-                from: 'metheswar@gmail.com',
+                from: 'metheswar2002@gmail.com',
                 subject: 'Reset Password',
                 text: 'Click the link below to reset your password:',
                 html: `<p>Click the link below to reset your password:</p><a href="http://localhost:3001/password/new/${id}">Click here</a>`,

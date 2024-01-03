@@ -1,5 +1,5 @@
 import './App.css';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import AuthPage from './Components/AuthComponent';
 import InputForm from './Components/InputForm';
@@ -8,16 +8,18 @@ import { useEffect } from 'react';
 import Leaderboard from './Components/Leaderboard';
 import ExpensePieChart from './Components/ExpensePieChart';
 import ForgotPassword from './Components/ForgotPassword';
+import { logoutHandler } from './store/authSlice';
 
 
 function App() {
   const authenticated = useSelector((state) => state.authentication.authenticated);
   const premium = useSelector((state) => state.authentication.premium);
-
+  const dispatch = useDispatch();
   useEffect(() => {
     const handleBeforeUnload = () => {
       localStorage.removeItem('token');
       localStorage.removeItem('email');
+      dispatch(logoutHandler())
     };
 
     window.addEventListener('beforeunload', handleBeforeUnload);

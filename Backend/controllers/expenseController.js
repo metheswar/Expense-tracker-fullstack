@@ -3,6 +3,52 @@ const Expense = require('../models/Expense');
 const User = require('../models/user');
 const { verifyToken } = require('../helpers/jwtHelper');
 const sequelize = require('../models/sequelize');
+const AWS = require('aws-sdk');
+const { v1: uuidv1 } = require('uuid');
+
+const downloadExpenses = async (req, res) => {
+  try {
+    const token = req.headers.authorization.split(' ')[1];
+    const decodedToken = verifyToken(token);
+
+    if (!decodedToken.premiumUser) {
+      return res.status(401).json({ success: false, message: 'User is not a premium User' });
+    }
+
+    AWS.config.update({
+      accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+      region: process.env.AWS_REGION,
+    });
+
+    const s3 = new AWS.S3();
+    const bucketName = process.env.bucketName;
+
+    const params = {
+      Bucket: bucketName,
+      Key: `expenses${uuidv1()}.txt`,
+      Body: JSON.stringify(await getExpensesForUser(decodedToken.userId)),
+    };
+
+    const uploadResult = await s3.upload(params).promise();
+
+    const fileUrl = uploadResult.Location;
+    res.status(201).json({ fileUrl, success: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: err, success: false, message: 'Something went wrong' });
+  }
+};
+
+const getExpensesForUser = async (userId) => {
+  const user = await User.findByPk(userId);
+
+  if (!user) {
+    throw new Error('User not found');
+  }
+
+  return user.getExpenses();
+};
 
 const postExpenses = async (req, res) => {
   try {
@@ -124,4 +170,4 @@ const updateExpense = async (req, res) => {
   }
 };
 
-module.exports = { postExpenses, getExpenses, deleteExpense, updateExpense };
+module.exports = { postExpenses, getExpenses, deleteExpense, updateExpense,downloadExpenses };
